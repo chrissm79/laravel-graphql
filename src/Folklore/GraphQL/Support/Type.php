@@ -9,26 +9,26 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 
 class Type extends Fluent {
-    
+
     protected static $instances = [];
-    
+
     protected $inputObject = false;
-    
+
     public function attributes()
     {
         return [];
     }
-    
+
     public function fields()
     {
         return [];
     }
-    
+
     public function interfaces()
     {
         return [];
     }
-    
+
     protected function getFieldResolver($name, $field)
     {
         $resolveMethod = 'resolve'.studly_case($name).'Field';
@@ -45,10 +45,10 @@ class Type extends Fluent {
                 return call_user_func_array($resolver, $args);
             };
         }
-        
+
         return null;
     }
-    
+
     public function getFields()
     {
         $fields = $this->fields();
@@ -71,7 +71,7 @@ class Type extends Fluent {
                 $allFields[$name] = $field;
             }
         }
-        
+
         return $allFields;
     }
 
@@ -83,18 +83,19 @@ class Type extends Fluent {
     public function getAttributes()
     {
         $attributes = $this->attributes();
-        $fields = $this->getFields();
         $interfaces = $this->interfaces();
-        
+
         $attributes = array_merge($this->attributes, [
-            'fields' => $fields
+            'fields' => function () {
+                return $this->getFields();
+            }
         ], $attributes);
-        
+
         if(sizeof($interfaces))
         {
             $attributes['interfaces'] = $interfaces;
         }
-        
+
         return $attributes;
     }
 
@@ -107,7 +108,7 @@ class Type extends Fluent {
     {
         return $this->getAttributes();
     }
-    
+
     public function toType()
     {
         if($this->inputObject)
@@ -140,5 +141,5 @@ class Type extends Fluent {
         $attributes = $this->getAttributes();
         return isset($attributes[$key]);
     }
-    
+
 }
